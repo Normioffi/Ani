@@ -1,3 +1,9 @@
 node_modules
-package-lock.json
+dist
 .DS_Store
+._.DS_Store
+.npmignore
+.eslintrc.json
+tsconfig.cjs.json
+tsconfig.esm.json
+tsconfig.json

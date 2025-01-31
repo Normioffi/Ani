@@ -1,346 +1,92 @@
 <div align="center">
-Aniki is a module using APIs to obtain information about an anime or manga.
+<h1>Aniki</h1>
+Aniki is a NPM module using different website APIs to get anime and manga informations.
+
+See [CHANGELOG](/CHANGELOG.md) for new content.
+
 </div>
 
 # Installation
+
 With NPM:
+
 ```npm
 npm i aniki
 ```
 
-# Alpha
-An alpha version (1.3.0) will be released soon as possible (I WORK A LOT FOR NOTHING LOL), the module has been restructured in TypeScript, you can still use it in JavaScript ESM.
+# API used
 
-# Api used
-
-Kitsu.io (For anime and manga)
-
-# Helping
-Do you have an anime/manga api to suggest? Tell me in [X](https://twitter.com/Normioffi)! (The api must not have an access key.)
+Kitsu.app: English API to get anime or manga informations.
 
 # Usage
 
 With Kitsu:
 
-```js
-const { AnimeKitsu } = require("aniki/kitsu");
+CommonJS
 
-const anime = new AnimeKitsu();
+```javascript
+const aniki = require("aniki");
 
-// Find anime.
-anime.find("name").then(results => {
-	console.log(results.data[0]) // The 0 is the first result, data are required.
+const anime = new aniki.AnimeKitsu();
 
-    // Tips: If you want to make sure you have any data, make a condition like this:
-    if (results.data.length > 0) {
-        // ...
-    } else {
-        // ...
-    }
+// Find anime in a simple way:
+
+anime
+  .find({ query: "Oshi no ko", offset: 0 })
+  .then((r) => console.log(r.data[0]));
+
+// All list from the first page (limited by 10 result)
+anime.list({ offset: 0, perPage: 10 }).then((results) => {
+  console.log(results.data);
 });
 
-// All list from the page, 
-anime.list(0).then(animes => { // 0 is the offset (first page)
-  console.log(animes)
-});
-```
-
-With Kitsu for manga:
-
-```js
-const { MangaKitsu } = require("aniki/kitsu");
-
-const manga = new MangaKitsu();
-
-// Find anime.
-manga.find("name", 0).then(results => {
-    console.log(results.data[0]);
+// Find anime with ID
+anime.findById(2303).then((result) => {
+  console.log(result.data);
 });
 
-// Get a list.
-manga.list(0).then(mangas => {
-    console.log(mangas);
+// Find an episode
+anime.episode(2303).then((result) => {
+  console.log(result.data);
 });
-```
-# Important
 
-If you use all function at one time, use asynchronous function:
-
-```js
-async function yourFunc() {
-  await anime.find("name", 0).then(results => {
-	  console.log(results.data[0]);
-  });
- 
-  await anime.list(0).then(animes => {
-	  console.log(animes.data[0]);
-  });
-
-  await manga.find("name", 0).then(results => {
-    console.log(results.data[0]);
-  });
-  // ...
-};
-yourFunc();
+// Using the new way to handle errors
+anime
+  .find({ query: "Oshi no ko" }, async ({ apiError, moduleError }, status) => {
+    if (apiError) console.error(await apiError);
+    if (moduleError) console.error(await moduleError);
+  })
+  .then((r) => console.log(r));
 ```
 
-# Kitsu Anime Response
+Also, some parameters supports Enums!
 
-|Attributes|Description|Type|
-|---|---|---|
-|`titles`|All type of title|object|
-|`titles` > `en`|The english title|string|
-|`titles` > `jp`|The japanese title|string|
-|`titles` > `ja_jp`|The japanese character title|string|
-|`canonicalTitle`|The canonical title|string|
-|`abbreviatedTitles`|The abbreviated titles|array|
-|`synopsis`|The synopsis of the anime (description)|string|
-|`createdAt`|The creation date (ISO 8601)|string|
-|`startAt`|The start date (YYYY-MM-DD)|string|
-|`updatedAt`|The updated date (ISO 8601)|string|
-|`endAt`|The end date (YYYY-MM-DD)|string|
-|`posterImage`|The poster image|object|
-|`posterImage` > `tiny`|The tiny poster image|string|
-|`posterImage` > `small`|The small poster image|string|
-|`posterImage` > `medium`|The medium poster image|string|
-|`posterImage` > `large`|The large poster image|string|
-|`posterImage` > `original`|The original poster image|string|
-|`coverImage`|The poster image|object|
-|`coverImage` > `tiny`|The tiny poster image|string|
-|`coverImage` > `small`|The small poster image|string|
-|`coverImage` > `large`|The large poster image|string|
-|`posterImage` > `original`|The original poster image|string|
-|`episodeCount`|The number of episodes|number|
-|`episodeLength`|The approximative duration of the episode|number|
-|`nsfw`|If the anime are NSFW content or not (must use authentication system.)|boolean|
-|`youtubeVideoId`|The trailer video id|string|
-|`ageRating`|The age rating|"enum"|
-|`subtype`|The subtype|"enum"|
+```javascript
+const aniki = require("aniki");
+const { EKitsuAnimeCategories } = require("aniki/kitsu/enums");
 
-# Kitsu JSON Response
+const anime = new aniki.AnimeKitsu();
 
-Example with an anime search
+// finding a specific category with the EKitsuAnimeCategories enum.
 
-```json
-{
-    "data": [
-        {
-            "id": "",
-            "type": "",
-            "links": {
-                "self": ""
-            },
-            "attributes": {
-                "createdAt": "",
-                "updatedAt": "",
-                "slug": "",
-                "synopsis": "",
-                "description": "",
-                "coverImageTopOffset": 0,
-                "titles": {
-                    "en_jp": "",
-                    "ja_jp": ""
-                },
-                "canonicalTitle": "",
-                "abbreviatedTitles": [
-                    ""
-                ],
-                "averageRating": "",
-                "ratingFrequencies": {
-                    "2": "",
-                    "3": "",
-                    "4": "",
-                    "5": "",
-                    "6": "",
-                    "7": "",
-                    "8": "",
-                    "9": "",
-                    "10": "",
-                    "11": "",
-                    "12": "",
-                    "13": "",
-                    "14": "",
-                    "15": "",
-                    "16": "",
-                    "17": "",
-                    "18": "",
-                    "19": "",
-                    "20": ""
-                },
-                "userCount": 0,
-                "favoritesCount": 0,
-                "startDate": "0000-00-00",
-                "endDate": "0000-00-00",
-                "nextRelease": null,
-                "popularityRank": 0,
-                "ratingRank": 0,
-                "ageRating": "",
-                "ageRatingGuide": "",
-                "subtype": "",
-                "status": "",
-                "tba": "",
-                "posterImage": {
-                    "tiny": "",
-                    "large": "",
-                    "small": "",
-                    "medium": "",
-                    "original": "",
-                    "meta": {
-                        "dimensions": {
-                            "tiny": {
-                                "width": 0,
-                                "height": 0
-                            },
-                            "large": {
-                                "width": 0,
-                                "height": 0
-                            },
-                            "small": {
-                                "width": 0,
-                                "height": 0
-                            },
-                            "medium": {
-                                "width": 0,
-                                "height": 0
-                            }
-                        }
-                    }
-                },
-                "coverImage": {
-                    "tiny": "",
-                    "large": "",
-                    "small": "",
-                    "original": "",
-                    "meta": {
-                        "dimensions": {
-                            "tiny": {
-                                "width": 0,
-                                "height": 0
-                            },
-                            "large": {
-                                "width": 0,
-                                "height": 0
-                            },
-                            "small": {
-                                "width": 0,
-                                "height": 0
-                            }
-                        }
-                    }
-                },
-                "episodeCount": 0,
-                "episodeLength": 0,
-                "totalLength": 0,
-                "youtubeVideoId": "",
-                "showType": "",
-                "nsfw": false
-            },
-            "relationships": {
-                "genres": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "categories": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "castings": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "installments": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "mappings": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "reviews": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "mediaRelationships": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "characters": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "staff": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "productions": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "quotes": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "episodes": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "streamingLinks": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "animeProductions": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "animeCharacters": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                },
-                "animeStaff": {
-                    "links": {
-                        "self": "",
-                        "related": ""
-                    }
-                }
-            }
-        }
-    ],
-    "meta": {
-        "count": 0
-    },
-    "links": {
-        "first": "",
-        "last": ""
-    }
-}
+anime
+  .list({ categories: EKitsuAnimeCategories.ACTION })
+  .then((r) => console.log(r.data));
 ```
+
+<p style="font-size: 20px">You don't know what the API will return? No problem, with the version <b>1.3.0</b>, _aniki_ now support <b>CJS</b>/<b>ESM</b> and <b>TS</b>, which means that <b>Promise</b>s now returns a type for each methods! (or undefined if errors.)</p>
+
+# Available parameters
+
+Anime/Manga > find:
+| Property | Description | Type | Required | Default value |
+|:-------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:-------------:|
+| query | The query to find an anime. | string | Yes | None |
+| offset | The offset pagination to skip pages (default is 0) | number | No | 0 |
+| perPage | The number of animes that must be returned by the function (default: 10, max: **30**) | number | No | 10 |
+| season | The season of the anime | "winter" \| "spring" \| "summer" \| "fall" \| EKitsuSeasons (Enum) | No | None |
+| year | The year of the anime. | `${number}..` \| `${number}..${number}` | No | None |
+| streamers | The available streaming platforms. | "Crunchyroll" \| "Hulu" \| "Funanimation" \| "CONtv" \| "Netflix" \| "HIDIVE" \| "TubiTV" \| "Amazon" \| "Youtube" \| "AnimeLab" \| "VRV" (Array too) | No | None |
+| ageRating | Age rating of the anime (**G**: _General Audiences_, **PG**: _Parental Guidance Suggested_, **R**: _Restricted_, **R18**: _Restricted for 18 years old or older_.) | "G" \| "R18" \| "PG" \| "R" \| Array<"G" \| "R18" \| "PG" \| "R"> \| EKitsuAgeRating | No | None |
+| averageRating | The average rating of the anime | `${number}..` \| `${number}..${number}` | No | None |
+| categories | The categories of the anime. | "comedy" \| "anti-war" \| "coming-of-age" \| "epidemic" \| "post-apocalypse" \| EKitsuAnimeCategories (Enum) | No | None |
